@@ -6,7 +6,7 @@ node_modules/
 dist/
 .remote/
 *.pdf
-*.png
+/*.png
 
 # Editor and OS files
 .DS_Store
