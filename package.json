@@ -1,0 +1,19 @@
+{
+  "name": "swiss-cloud-native-day-talk-2026",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "slidev build",
+    "dev": "slidev",
+    "export": "slidev export",
+    "screenshot": "slidev export --format png"
+  },
+  "dependencies": {
+    "@peschmae/slidev-theme-fhnw": "github:peschmae/slidev-theme-fhnw",
+    "@slidev/cli": "latest",
+    "@slidev/client": "latest"
+  },
+  "devDependencies": {
+    "playwright-chromium": "^1.49.0"
+  }
+}
