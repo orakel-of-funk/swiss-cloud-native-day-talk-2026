@@ -160,3 +160,139 @@ graph TB
 ```
 
 ---
+
+## Observable Signals
+
+| Category | Signals | Strength |
+| --- | --- | --- |
+| **Pod health** | Startup-, Liveness-, Readiness-Probes | hard failure gate |
+| **Events** | Restarts, CrashLoopBackOff, probe failures | hard failure gate |
+| **Logs** | container logs via kube-api | positive confirmation |
+| **Metrics** | CPU / memory from kubelet | supportive only |
+
+> Probes alone prove "running", not "correct".
+
+
+
+---
+
+## Logs · Drain Template Matching
+
+- Parse logs into templates with the **Drain** algorithm.
+- Train on **two** baseline recordings (so dynamic fields become `<*>`).
+- Match check-run logs against baseline templates.
+- Unmatched lines → anomalies; re-mined to collapse recurring errors.
+
+Reliable even for workloads that stayed **Ready** — catches silent failures.
+
+---
+
+## Metrics · Statistical Summaries
+
+- Collected per **kubelet**, ~15s resolution.
+- **DTW** evaluated → good for shifted patterns, but needs interpretation.
+- **Statistical summaries** chosen: mean, median, std-dev, variance on normalized data.
+- Metrics alone are **not** sufficient — used to spot outliers only.
+
+---
+
+## Oracle Test Cases
+
+Ordered by reliability & priority:
+
+| ID | Title | Datasource |
+| --- | --- | --- |
+| TC-01 | Pod Stability | Probes |
+| TC-02 | Pod Readiness | Probes |
+| TC-03 | Log Pattern Matching | Logs |
+| TC-04 | Resource Usage Patterns | Metrics |
+
+TC-01…TC-03 failure ⇒ check fails. TC-04 alone never fails a check.
+
+---
+
+## Implementation: Operator Architecture
+
+- **Operator SDK** Kubernetes operator, two CRDs:
+  - `WorkloadHardeningCheck` — one workload
+  - `NamespaceHardeningCheck` — all workloads in a namespace
+- All runs execute in **cloned namespaces** (isolation preserved).
+- Status tracked via `StatusConditions`; logs/metrics in **ValKey** (1-day expiry).
+
+---
+
+## Execution Flow
+
+```mermaid{scale: 0.5}
+graph TD
+    A[Create HardeningCheck CR] --> B[Clone namespace]
+    B --> C[Record baseline twice]
+    C --> D[Plan & execute checks]
+    D --> E[Compare signals to baseline]
+    E --> F[Synthesize recommendation]
+    F --> G[Final verification run]
+    G --> H[Publish recommended securityContext]
+```
+
+---
+
+## Check Design
+
+- Checks map to `securityContext` / `podSecurityContext` attributes.
+- **Isolated:** `readOnlyRootFilesystem`, `allowPrivilegeEscalation`, `capabilities.drop`.
+- **Grouped:** `runAsUser` / `runAsGroup` / `fsGroup` / `runAsNonRoot` set consistently.
+- Execution modes: **sequential** or **parallel**; `recordingDuration` configurable.
+
+
+## Evaluation Workloads
+
+- **Real-world:** Prometheus, ArgoCD, MariaDB, Podtato-Head (official Helm charts).
+- **NGINX scenarios:** root, non-root unprivileged, read-only root + emptyDir.
+- **Purpose-built:** chown, privilege escalation, filesystem writes, port binding.
+
+---
+
+## Key Findings
+
+- Stateless / loosely coupled workloads easiest to harden.
+- Multi-component apps need namespace-level checks.
+- **Log heuristics detected deviations even when pods stayed Ready.**
+- Runtime variance matters (e.g. unprivileged port binding differs by runtime).
+- Stateful workloads can be hardened with careful cloning.
+
+---
+
+## Limitations
+
+- Concurrency complicates status updates & resource versioning.
+- Complex topologies (distributed systems, CRDs) hard to clone faithfully.
+- Evaluation duration balances coverage vs. feedback loop.
+- Metrics alone insufficient for functional correctness.
+
+---
+
+## Takeaways
+
+- Functionality-based hardening is **feasible** with minimal assumptions.
+- Logs + probes + metrics together form a robust oracle.
+- Operator integrates natively, gives actionable workload-agnostic recommendations.
+
+---
+
+## Future Work
+
+- Dedicated **CLI** for CI/CD integration.
+- Separate `WorkloadHardeningReport` resource for cleaner reporting.
+- Consolidated baseline for namespace-level checks.
+- **LLM-based** semantic log analysis.
+- Regression testing across upgrades; broader CRD / distributed workload support.
+
+---
+
+## Questions?
+
+![xkcd 1256 - Questions](/xkcd-1256-questions.png)
+
+<small>[xkcd 1256 — Questions](https://xkcd.com/1256/) by Randall Munroe, licensed under [CC BY-NC 2.5](https://creativecommons.org/licenses/by-nc/2.5/)</small>
+
+<small>Slides built with [Slidev](https://sli.dev) and the [FHNW theme](https://github.com/peschmae/slidev-theme-fhnw).</small>
