@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@peschmae/slidev-theme-fhnw": "github:peschmae/slidev-theme-fhnw",
-    "@slidev/cli": "latest",
+    "@slidev/cli": "^52.19.1",
     "@slidev/client": "latest"
   },
   "devDependencies": {

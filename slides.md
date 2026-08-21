@@ -2,268 +2,161 @@
 theme: '@peschmae/slidev-theme-fhnw'
 layout: cover
 title: Automated Kubernetes Workload Hardening Using a Functionality Oracle
-author: Mathias Petermann
+author: Mathias Petermann, Sebastian Graf
 ---
 
 # Automated Kubernetes Workload Hardening Using a Functionality Oracle
 
+> "We just want to deploy securely — but end up fixing someone else's YAML"
+
 Mathias Petermann &nbsp; <small>&lt;mathias.petermann@gmail.com&gt;</small>
 
-Academic Supervisor: Sebastian Graf &nbsp; <small>&lt;sebastian.graf@fhnw.ch&gt;</small>
+Sebastian Graf &nbsp; <small>&lt;sebastian.graf@fhnw.ch&gt;</small>
 
 School of Computer Science, FHNW
 
-September 2025
+September 2026
 
 ---
-
-# Agenda
-
-1. Problem and motivation
-2. Research objectives
-3. Functionality oracle design
-4. System architecture
-5. Implementation highlights
-6. Evaluation and results
-7. Conclusion and future work
-
----
-layout: section
+layout: image-left
+image: /theres-no-container.jpg
+backgroundSize: contain
 ---
 
-# Problem and Motivation
+## Why Bother, Part 1 ?
 
----
+Containers are not intended to isolate against the host without specialized settings:
 
-# The Challenge
+- on kernel-level:<br/>
+`cgroups`, `chroot`, `namespaces`
+- within K8:<br/>
+`securityContext`
 
-- Kubernetes provides powerful runtime restrictions via `securityContext`.
-- Restrictions can cause **unexpected application failures** that only appear at runtime.
-- Conventional testing requires application-specific knowledge and integration tests.
-- There is **no generic, automated way** to verify that a workload remains functional under restrictive settings.
+If not set, workloads might interfer with each other on same host.
 
-> *Determining whether an application continues to function correctly under increasingly restrictive settings remains a challenge.*
+<!--
+chroot, cgroups and namespaces...
 
----
-
-# Why It Matters
-
-- Containers are not secure by isolation alone.
-- `securityContext` settings reduce attack surface:
+`securityContext` cuts the attack surface:
   - non-root users
   - read-only root filesystems
   - dropped Linux capabilities
-- Applying them manually is error-prone and often neglected.
-- The goal: **maximize security without breaking functionality**.
+  - Applied manually → error-prone and often skipped.
+-->
 
 ---
-layout: section
+layout: image-right
+image: /workloads.drawio.svg
+backgroundSize: 20em 80%
 ---
 
-# Research Objectives
+## Why Bother, Part 2 ?
+
+Responsibilities of Platform and Application is distributed over teams:
+
+- on top: business teams focussing on application
+  - focus on business requirements best
+  - focus not on platform best practices
+- on bottom: platform team, caring about platform for multiple applications
+  - no / few application knowledge
+  - need to guarantee integrity and resilience of entire platform
+
+<!--
+- Use Case: Platform team deployes internal / third party workload
+  - Application not really known to platform owner
+  - Howerver: platform owner wants to have secure deployed workloads not interfering with other workloads
+  - securityContext to rescue...but how to apply?
+Credit: https://martinfowler.com/articles/platform-teams-stuff-done.html
+-->
 
 ---
-
-# Research Questions
-
-1. **Classification** — What methods exist to group workloads for standardized testing?
-2. **Heuristics** — What heuristics can evaluate workload functionality when runtime constraints change?
-3. **Iteration** — How can these heuristics automate iterative restrictions and systematic verification?
-4. **Architecture** — How to balance CI/CD automation with the flexibility of a Kubernetes operator?
-
+layout: two-cols
 ---
 
-# Scope
+## The Gap
 
-- Focus on container runtime hardening using `securityContext` and resource limits.
-- Exclude RBAC and Windows-specific configurations.
-- Target applications running on Linux-based Kubernetes worker nodes.
+- No **generic, automated** way to prove a workload still works under restrictive settings.
+- Every restriction is a gamble: it might break the app at runtime.
 
----
-layout: section
----
+> **Goal:** maximize security without breaking functionality — automatically.
 
-# Functionality Oracle Design
+::right::
 
----
+<div class="text-[9.5px] leading-tight">
 
-# Core Idea
-
-- Treat functional correctness as a **black-box** problem.
-- Record a **baseline** of a known-good workload.
-- Apply one runtime restriction at a time.
-- Compare observed behavior against the baseline.
-- Aggregate successful restrictions into a recommended `securityContext`.
-
----
-
-# Signals Used
-
-| Category | Signals |
+| Field | Description |
 | --- | --- |
-| **Pod healthiness** | Startup-, Liveness-, Readiness-Probes |
-| **Kubernetes events** | Restarts, CrashLoopBackOff, probe failures |
-| **Logs** | Structured / unstructured container logs |
-| **Resource metrics** | CPU and memory usage from the kubelet |
+| `allowPrivilegeEscalation` | Controls whether a process can gain more privileges than its parent, such as via setuid binaries. Container level only. |
+| `capabilities` | Allows fine-grained control over Linux capabilities (e.g., `NET_ADMIN`, `SYS_TIME`). Container level only. |
+| `fsGroup` | Defines a group ID used for setting group ownership of mounted volumes. Pod-level only. |
+| `fsGroupChangePolicy` | Defines behavior of changing ownership and permission of the volume before being exposed inside Pod. Pod-level only. |
+| `privileged` | Grants the container full access to the host, disabling most isolation mechanisms. Only available at the Container level. |
+| `readOnlyRootFilesystem` | Mounts the containers root file system as read-only. Prevents write access to root-level paths. Container level only. |
+| `runAsGroup` | Specifies the GID to run the container process. Useful for filesystem permissions. Applicable at Pod or Container level. |
+| `runAsNonRoot` | Ensures the container does not run as root (user ID 0). Kubernetes will reject the Pod if no user ID is set. Applicable at Pod or Container level. |
+| `runAsUser` | Specifies the UID to run the entrypoint of the container process. Applicable at Pod or Container level. |
+| `seLinuxOptions` | Specifies SELinux labels for process confinement. Requires SELinux-enabled hosts. Usable at Pod or Container level. |
+| `seccompProfile` | Applies a Seccomp profile to limit available syscalls. Usable at Pod or Container level. |
+| `supplementalGroups` | List of additional GIDs the container will be part of. Useful for shared volume access. Pod-level only. |
+| `supplementalGroupsPolicy` | Defines how supplemental groups are calculated. Promoted to Beta in Kubernetes 1.33. |
+| `sysctls` | Defines kernel parameters for the Pod. Only safe, allow-listed sysctls are permitted. Pod-level only. |
 
-> Pod phase and probes act as a **hard failure gate**, but they do not prove functional correctness on their own.
+</div>
+
+<!--
+- Kubernetes gives us powerful runtime restrictions via `securityContext`.
+- Restrictions **only fail at runtime** — no compile-time, no static analysis.
+- Conventional verification needs app-specific knowledge + integration tests.
+-->
+
+---
+layout: image-right
+image: /orakle-of-funk.png
+backgroundSize: contain
+---
+
+## The idea 
+
+Treat functional correctness as a **black box** and **orakle** about its correctness:
+
+1. Record a **baseline** of a known-good workload.
+2. Apply **one** runtime restriction at a time.
+3. **Compare** observed behavior against the baseline.
+4. Aggregate successful restrictions → recommended `securityContext`.
+
+--> No internal knowledge of the app required..<br/>
+--> (however...correct behaviour is assumed, not proved...)<br/>
+-->(well...is software correctness ever proved?)
 
 ---
 
-# Log Analysis with Drain
+## What Comes Out
 
-- Logs are parsed into templates using the **Drain** algorithm.
-- Two baseline recordings train the parser on normal log patterns.
-- Check-run logs are matched against the baseline templates.
-- Unmatched lines are reported as anomalies.
+A ready-to-apply, workload-agnostic recommendation:
 
-<small>This approach proved highly reliable in detecting functional deviations, even for workloads that stayed Ready.</small>
-
----
-
-# Metrics Comparison
-
-- Resource metrics are collected directly from each Node’s kubelet.
-- Two approaches were evaluated:
-  - **Dynamic Time Warping (DTW)** — matches shifted time-series patterns.
-  - **Statistical summaries** — mean, median, standard deviation, variance.
-- Statistical summaries were chosen for their simplicity and interpretability with short recordings.
+- `podSecurityContext` + container `securityContext`
+- Built only from restrictions that provably kept the app working
+- Enables **secure-by-default** deployments
 
 ---
 
-# Four Test Cases
+## The Loop
 
-| ID | Test | Source | Priority |
-| --- | --- | --- | --- |
-| **TC-01** | Pod stability (no crashes) | Probes | High |
-| **TC-02** | Pod readiness | Probes | High |
-| **TC-03** | Log pattern matching | Logs | Medium |
-| **TC-04** | Resource usage patterns | Metrics | Low |
-
-A failing check is excluded from the final recommendation.
-
----
-layout: section
----
-
-# System Architecture
-
----
-
-# Kubernetes Operator
-
-- Implemented as a **Kubernetes Operator** using the Operator SDK.
-- Two custom resources coordinate execution:
-  - `WorkloadHardeningCheck` — targets one workload.
-  - `NamespaceHardeningCheck` — hardens all workloads in a namespace.
-- All checks run in **cloned namespaces**, preserving isolation.
-
----
-
-# Execution Flow
-
-```mermaid
-graph TD
-    A[Create HardeningCheck CR] --> B[Clone namespace]
-    B --> C[Record baseline twice]
-    C --> D[Plan & execute checks]
-    D --> E[Compare signals to baseline]
-    E --> F[Synthesize recommendation]
-    F --> G[Final verification run]
-    G --> H[Publish recommended securityContext]
+```mermaid{scale: 0.55}
+graph TB
+    A[Clone namespace] --> B[Record baseline twice]
+    B --> C[Apply one restriction]
+    subgraph loop
+    direction LR
+    C --> D[Compare signals to baseline]
+    D --> E{Functional?}
+    E -->|yes| F[Keep restriction]
+    E -->|no| G[Drop restriction]
+    F --> H[Next restriction]
+    end
+    G --> H
+    H --> C
+    F --> I[Synthesize recommended securityContext]
 ```
 
 ---
-layout: section
----
-
-# Implementation Highlights
-
----
-
-# Signal Collection
-
-- **Logs**: streamed via the Kubernetes API for each container.
-- **Metrics**: gathered directly from kubelet on each Node.
-- **Storage**: signals stored temporarily in **ValKey** with one-day expiry.
-- Status updates kept lightweight to avoid API server load.
-
----
-
-# Check Design
-
-- Checks map to `securityContext` / `podSecurityContext` attributes.
-- **Isolated checks**: `readOnlyRootFilesystem`, `allowPrivilegeEscalation`, `capabilities.drop`.
-- **Grouped checks**: `runAsUser`, `runAsGroup`, `fsGroup`, `runAsNonRoot` must be set consistently.
-- Execution modes: **sequential** or **parallel**.
-
----
-layout: section
----
-
-# Evaluation and Results
-
----
-
-# Evaluation Workloads
-
-- **Real-world**: Prometheus, ArgoCD, MariaDB, Podtato-Head.
-- **NGINX scenarios**: default root, non-root unprivileged, read-only root with emptyDir.
-- **Purpose-built workloads**: isolated tests for chown, privilege escalation, filesystem writes, port binding.
-
----
-
-# Key Findings
-
-- Stateless and loosely coupled workloads are easiest to harden.
-- Multi-component applications require namespace-level checks.
-- **Log-based heuristics detected deviations even when pods stayed Ready.**
-- Container runtime variance matters (e.g., unprivileged port binding).
-- Stateful workloads can be hardened, but require careful cloning.
-
----
-
-# Observations and Limitations
-
-- Concurrency complicates status updates and resource versioning.
-- Complex topologies (distributed systems, CRDs) are harder to clone faithfully.
-- The evaluation duration must balance coverage and feedback loop.
-- Metrics alone are not sufficient to determine functional correctness.
-
----
-layout: section
----
-
-# Conclusion and Future Work
-
----
-
-# Conclusion
-
-- Functionality-based Kubernetes workload hardening is **feasible** with minimal assumptions.
-- The operator integrates natively and provides actionable, workload-agnostic recommendations.
-- Logs + probes + metrics together form a robust functionality oracle.
-- The approach enables **secure-by-default deployments** without handcrafted test logic.
-
----
-
-# Future Work
-
-- Dedicated CLI for CI/CD integration.
-- Separate `WorkloadHardeningReport` resource for cleaner reporting.
-- Consolidated baseline recording for namespace-level checks.
-- Integration of LLMs for semantic log analysis.
-- Regression testing across application upgrades.
-- Support for more complex, interdependent workloads and CRDs.
-
----
-layout: end
----
-
-# Any questions?
-
-![xkcd 1256 - Questions](/xkcd-1256-questions.png)
-
-<small>[xkcd 1256 — Questions](https://xkcd.com/1256/) by Randall Munroe, licensed under [CC BY-NC 2.5](https://creativecommons.org/licenses/by-nc/2.5/)</small>
-
-<small>Slides built with [Slidev](https://sli.dev) and the [FHNW theme](https://github.com/peschmae/slidev-theme-fhnw).</small>
