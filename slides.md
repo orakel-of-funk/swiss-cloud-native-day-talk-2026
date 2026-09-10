@@ -18,12 +18,47 @@ School of Computer Science, FHNW
 September 2026
 
 ---
+layout: two-cols
+---
+
+## Two Roles, one goal 
+
+Platform Owner: Offer reliable, secure service even on shared instances..
+Application Creator: Ship business code asap and without problems
+
+<!--
+difference ops - dev on a new level
+
+-->
+
+---
+layout: two-cols
+---
+
+## Why Bother, the application creator perspective
+
+"hey claude, generate me an application and push it to prod"
+
+<-- image of app engineer-->
+
+---
+layout: two-cols
+---
+
+## Why Bother, the platform owners perspective
+
+black box workloads
+people do not really know what to do  / they want
+
+<-- image of platform owner-->
+
+---
 layout: image-left
 image: /theres-no-container.jpg
 backgroundSize: contain
 ---
 
-## Why Bother, Part 1 ?
+## In the basement, how the kernel guardrails containers
 
 Containers are not intended to isolate against the host without specialized settings:
 
@@ -44,41 +79,9 @@ chroot, cgroups and namespaces...
   - Applied manually → error-prone and often skipped.
 -->
 
----
-layout: image-right
-image: /workloads.drawio.svg
-backgroundSize: 20em 80%
----
+## In the K8s-world...
 
-## Why Bother, Part 2 ?
-
-Responsibilities of Platform and Application is distributed over teams:
-
-- on top: business teams focussing on application
-  - focus on business requirements best
-  - focus not on platform best practices
-- on bottom: platform team, caring about platform for multiple applications
-  - no / few application knowledge
-  - need to guarantee integrity and resilience of entire platform
-
-<!--
-- Use Case: Platform team deployes internal / third party workload
-  - Application not really known to platform owner
-  - Howerver: platform owner wants to have secure deployed workloads not interfering with other workloads
-  - securityContext to rescue...but how to apply?
-Credit: https://martinfowler.com/articles/platform-teams-stuff-done.html
--->
-
----
-layout: two-cols
----
-
-## The Gap
-
-- No **generic, automated** way to prove a workload still works under restrictive settings.
-- Every restriction is a gamble: it might break the app at runtime.
-
-> **Goal:** maximize security without breaking functionality — automatically.
+Restrict the pod against the host is possible via security contexts
 
 ::right::
 
@@ -108,6 +111,44 @@ layout: two-cols
 - Restrictions **only fail at runtime** — no compile-time, no static analysis.
 - Conventional verification needs app-specific knowledge + integration tests.
 -->
+
+
+---
+layout: image-right
+image: /workloads.drawio.svg
+backgroundSize: 20em 80%
+---
+
+## The gap
+
+Responsibilities of Platform and Application is distributed over teams:
+
+- on top: business teams focussing on application
+  - focus on business requirements best
+  - focus not on platform best practices
+- on bottom: platform team, caring about platform for multiple applications
+  - no / few application knowledge
+  - need to guarantee integrity and resilience of entire platform
+
+<!--
+- Use Case: Platform team deployes internal / third party workload
+  - Application not really known to platform owner
+  - Howerver: platform owner wants to have secure deployed workloads not interfering with other workloads
+  - securityContext to rescue...but how to apply?
+Credit: https://martinfowler.com/articles/platform-teams-stuff-done.html
+-->
+
+---
+layout: two-cols
+---
+
+## The problem
+
+- No **generic, automated** way to prove a workload still works under restrictive settings.
+- Every restriction is a gamble: it might break the app at runtime.
+
+> **Goal:** maximize security without breaking functionality — automatically.
+
 
 ---
 layout: image-right
@@ -159,20 +200,35 @@ graph TB
     F --> I[Synthesize recommended securityContext]
 ```
 
+<!--
+as svg
+-->
 ---
 
 ## Observable Signals
 
-| Category | Signals | Strength |
-| --- | --- | --- |
-| **Pod health** | Startup-, Liveness-, Readiness-Probes | hard failure gate |
-| **Events** | Restarts, CrashLoopBackOff, probe failures | hard failure gate |
-| **Logs** | container logs via kube-api | positive confirmation |
-| **Metrics** | CPU / memory from kubelet | supportive only |
+| Category | Signals |
+| --- | --- |
+| **Logs** | container logs via kube-api |
+| **Pod health** | Startup-, Liveness-, Readiness-Probes |
+| **Events** | Restarts, CrashLoopBackOff, probe failures |
+| **Metrics** | CPU / memory from kubelet |
 
 > Probes alone prove "running", not "correct".
 
+---
 
+## Metrics · Statistical Summaries
+
+- Collected per **kubelet**, ~15s resolution.
+- **DTW** evaluated → good for shifted patterns, but needs interpretation.
+- **Statistical summaries** chosen: mean, median, std-dev, variance on normalized data.
+- Metrics alone are **not** sufficient — used to spot outliers only.
+
+<!--
+metriken sind vernachlässigbar und nicht genug zuverlässig
+-> logs
+-->
 
 ---
 
@@ -187,27 +243,9 @@ Reliable even for workloads that stayed **Ready** — catches silent failures.
 
 ---
 
-## Metrics · Statistical Summaries
+## Placeholder für LLM
 
-- Collected per **kubelet**, ~15s resolution.
-- **DTW** evaluated → good for shifted patterns, but needs interpretation.
-- **Statistical summaries** chosen: mean, median, std-dev, variance on normalized data.
-- Metrics alone are **not** sufficient — used to spot outliers only.
-
----
-
-## Oracle Test Cases
-
-Ordered by reliability & priority:
-
-| ID | Title | Datasource |
-| --- | --- | --- |
-| TC-01 | Pod Stability | Probes |
-| TC-02 | Pod Readiness | Probes |
-| TC-03 | Log Pattern Matching | Logs |
-| TC-04 | Resource Usage Patterns | Metrics |
-
-TC-01…TC-03 failure ⇒ check fails. TC-04 alone never fails a check.
+Lorem ipsum
 
 ---
 
@@ -223,32 +261,30 @@ TC-01…TC-03 failure ⇒ check fails. TC-04 alone never fails a check.
 
 ## Execution Flow
 
-```mermaid{scale: 0.5}
-graph TD
-    A[Create HardeningCheck CR] --> B[Clone namespace]
-    B --> C[Record baseline twice]
-    C --> D[Plan & execute checks]
-    D --> E[Compare signals to baseline]
-    E --> F[Synthesize recommendation]
-    F --> G[Final verification run]
-    G --> H[Publish recommended securityContext]
-```
+To be inserted: achitekturubersicht
 
 ---
-
-## Check Design
-
-- Checks map to `securityContext` / `podSecurityContext` attributes.
-- **Isolated:** `readOnlyRootFilesystem`, `allowPrivilegeEscalation`, `capabilities.drop`.
-- **Grouped:** `runAsUser` / `runAsGroup` / `fsGroup` / `runAsNonRoot` set consistently.
-- Execution modes: **sequential** or **parallel**; `recordingDuration` configurable.
-
 
 ## Evaluation Workloads
 
 - **Real-world:** Prometheus, ArgoCD, MariaDB, Podtato-Head (official Helm charts).
 - **NGINX scenarios:** root, non-root unprivileged, read-only root + emptyDir.
 - **Purpose-built:** chown, privilege escalation, filesystem writes, port binding.
+
+---
+
+## Concrete Example
+
+recommendation for adaption, thesis page 34
+
+---
+
+## Limitations
+
+- Concurrency complicates status updates & resource versioning.
+- Complex topologies (distributed systems, CRDs) hard to clone faithfully.
+- Evaluation duration balances coverage vs. feedback loop.
+- Metrics alone insufficient for functional correctness.
 
 ---
 
@@ -262,30 +298,13 @@ graph TD
 
 ---
 
-## Limitations
-
-- Concurrency complicates status updates & resource versioning.
-- Complex topologies (distributed systems, CRDs) hard to clone faithfully.
-- Evaluation duration balances coverage vs. feedback loop.
-- Metrics alone insufficient for functional correctness.
-
----
-
 ## Takeaways
 
 - Functionality-based hardening is **feasible** with minimal assumptions.
 - Logs + probes + metrics together form a robust oracle.
 - Operator integrates natively, gives actionable workload-agnostic recommendations.
 
----
-
-## Future Work
-
-- Dedicated **CLI** for CI/CD integration.
-- Separate `WorkloadHardeningReport` resource for cleaner reporting.
-- Consolidated baseline for namespace-level checks.
-- **LLM-based** semantic log analysis.
-- Regression testing across upgrades; broader CRD / distributed workload support.
+TBI: Link to repo
 
 ---
 
