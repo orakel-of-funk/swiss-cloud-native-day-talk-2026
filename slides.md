@@ -21,36 +21,65 @@ September 2026
 layout: two-cols
 ---
 
-## Two Roles, one goal 
+## Two Roles, one goal
 
-Platform Owner: Offer reliable, secure service even on shared instances..
-Application Creator: Ship business code asap and without problems
+::left::
+
+<img src="./appleng.jpeg" class="h-70 mx-auto mr-4">
+
+<div class="text-1xl italic mr-12">
+
+> "hey claude, generate me an application and push it to prod"
+
+</div>
+
+::right::
+
+<div class="text-1xl italic ml-12">
+
+> "I know that business value is created above... however I really would like to offer throughout reliable services."
+
+</div>
+
+<img src="./platformeng.jpeg" class="h-70 mx-auto ml-4">
+
 
 <!--
-difference ops - dev on a new level
-
+Platform Owner:
+- Offer reliable, secure service even on shared instances..
+- black box workloads
+- people do not really know what to do  / they want
+Application Creator:
+- Ship business code asap and without problems
+- many agentic workloads
+- variaty of oci images with all kinds of characteristics
 -->
 
 ---
-layout: two-cols
+layout: image-right
+image: /workloadperspective.svg
+backgroundSize: 20em 80%
 ---
 
-## Why Bother, the application creator perspective
+## The gap
 
-"hey claude, generate me an application and push it to prod"
+Responsibilities of Platform and Application is distributed over teams:
 
-<-- image of app engineer-->
+- on top: business teams focussing on application
+  - focus on business requirements best
+  - focus not on platform best practices
+- on bottom: platform team, caring about platform for multiple applications
+  - no / few application knowledge
+  - need to guarantee integrity and resilience of entire platform
 
----
-layout: two-cols
----
+<!--
+- Use Case: Platform team deployes internal / third party workload
+  - Application not really known to platform owner
+  - Howerver: platform owner wants to have secure deployed workloads not interfering with other workloads
+  - securityContext to rescue...but how to apply?
+Credit: https://martinfowler.com/articles/platform-teams-stuff-done.html
+-->
 
-## Why Bother, the platform owners perspective
-
-black box workloads
-people do not really know what to do  / they want
-
-<-- image of platform owner-->
 
 ---
 layout: image-left
@@ -58,30 +87,30 @@ image: /theres-no-container.jpg
 backgroundSize: contain
 ---
 
-## In the basement, how the kernel guardrails containers
+## In Linux, how the kernel guardrails containers
 
-Containers are not intended to isolate against the host without specialized settings:
+Containers are not intended to isolate against the host without dedicated settings:
 
 - on kernel-level:<br/>
 `cgroups`, `chroot`, `namespaces`
-- within K8:<br/>
-`securityContext`
 
-If not set, workloads might interfer with each other on same host.
+If not set, workloads on the same host might interfer with each other.
 
 <!--
 chroot, cgroups and namespaces...
-
-`securityContext` cuts the attack surface:
-  - non-root users
-  - read-only root filesystems
-  - dropped Linux capabilities
-  - Applied manually → error-prone and often skipped.
 -->
+
+---
+layout: two-cols
+---
 
 ## In the K8s-world...
 
-Restrict the pod against the host is possible via security contexts
+The fear of all platform engineering: 
+> Multiple containers in various namespaces run on different nodes operated by distinct teams...
+
+`securityContext` to the rescue:<p/>
+Restrict the pod against the host is possible via security contexts (and mostly Linux capabilities under the hood).
 
 ::right::
 
@@ -107,48 +136,41 @@ Restrict the pod against the host is possible via security contexts
 </div>
 
 <!--
-- Kubernetes gives us powerful runtime restrictions via `securityContext`.
-- Restrictions **only fail at runtime** — no compile-time, no static analysis.
-- Conventional verification needs app-specific knowledge + integration tests.
+`securityContext` cuts the interference surface by restricting the process within the runtime:
+  - non-root users
+  - read-only root filesystems
+  - dropped Linux capabilities
 -->
 
-
 ---
-layout: image-right
-image: /workloads.drawio.svg
-backgroundSize: 20em 80%
+layout: default
 ---
 
-## The gap
+## Choosing the correct security context is hard ...
 
-Responsibilities of Platform and Application is distributed over teams:
+...even if you know the application well ...
 
-- on top: business teams focussing on application
-  - focus on business requirements best
-  - focus not on platform best practices
-- on bottom: platform team, caring about platform for multiple applications
-  - no / few application knowledge
-  - need to guarantee integrity and resilience of entire platform
+<img src="./leankube-seccontext.png" class="w-full h-full object-contain">
 
-<!--
-- Use Case: Platform team deployes internal / third party workload
-  - Application not really known to platform owner
-  - Howerver: platform owner wants to have secure deployed workloads not interfering with other workloads
-  - securityContext to rescue...but how to apply?
-Credit: https://martinfowler.com/articles/platform-teams-stuff-done.html
--->
+Ref: https://learnkube.com/security-contexts 
 
 ---
 layout: two-cols
 ---
 
-## The problem
+## The problems
 
 - No **generic, automated** way to prove a workload still works under restrictive settings.
 - Every restriction is a gamble: it might break the app at runtime.
 
 > **Goal:** maximize security without breaking functionality — automatically.
 
+ <!--
+`securityContext` are quite powerful
+- Restrictions **only fail at runtime** — no compile-time, no static analysis.
+- Conventional verification needs app-specific knowledge + integration tests.
+- However, when applied manually → error-prone and often skipped.
+-->
 
 ---
 layout: image-right
@@ -167,7 +189,7 @@ Treat functional correctness as a **black box** and **orakle** about its correct
 
 --> No internal knowledge of the app required..<br/>
 --> (however...correct behaviour is assumed, not proved...)<br/>
--->(well...is software correctness ever proved?)
+-->(well...was software correctness ever proved?)
 
 ---
 
