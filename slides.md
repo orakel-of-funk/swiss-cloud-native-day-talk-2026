@@ -214,51 +214,85 @@ A ready-to-apply, workload-agnostic recommendation:
 layout: default
 ---
 
-## The loop
+## The Loop
 
-<div class="flex justify-center items-center h-[75%]">
+<div class="flex justify-center items-center h-[90%]">
 
 <img src="./workflow.svg" class="w-full h-full object-contain">
 
 </div>
----
-
-## Observable Signals
-
-| Category | Signals |
-| --- | --- |
-| **Logs** | container logs via kube-api |
-| **Pod health** | Startup-, Liveness-, Readiness-Probes |
-| **Events** | Restarts, CrashLoopBackOff, probe failures |
-| **Metrics** | CPU / memory from kubelet |
-
-> Probes alone prove "running", not "correct".
 
 ---
-
-## Metrics · Statistical Summaries
-
-- Collected per **kubelet**, ~15s resolution.
-- **DTW** evaluated → good for shifted patterns, but needs interpretation.
-- **Statistical summaries** chosen: mean, median, std-dev, variance on normalized data.
-- Metrics alone are **not** sufficient — used to spot outliers only.
-
-<!--
-metriken sind vernachlässigbar und nicht genug zuverlässig
--> logs
--->
-
+layout: two-cols
 ---
 
-## Logs · Drain Template Matching
+::left::
+
+### Signal Resource Metrics - DTW
+
+- Dynamic Time Wrapping (DTW) computes distance between points
+- Even it acts as indicator, only specific workloads would generate artifacts when failing
+
+<img src="./dtw-cpu-norm.png" class="h-60 mx-auto mr-4">
+
+
+::right::
+
+### Signal Resource Metrics - Statistics
+
+<div class="text-1xl italic ml-12">
+
+- Statistic analysis over measured metrics
+- Easier to compute / maintain than DTW
+- Unfortunately similar to DTW not entirely reliable
+
+</div>
+
+<div class="text-[12.5px] leading-tight">
+
+| | **CPU** | | | **Memory** | | |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| **Metric** | **Baseline** | **Test** | **Diff** | **Baseline** | **Test** | **Diff** |
+| **mean** | 0.436 | 0.286 | 0.148 | 0.792 | 0.809 | 0.016 |
+| **median** | 0.315 | 0.118 | 0.197 | 0.857 | 0.971 | 0.114 |
+| **standard deviation** | 0.333 | 0.310 | **0.023** | 0.261 | 0.285 | **0.024** |
+| **variance** | 0.111 | 0.096 | **0.014** | 0.068 | 0.081 | **0.013** |
+
+</div>
+
+---
+layout: image-right
+image: /drain.svg
+backgroundSize: contain
+---
+
+## Signal Logs - Drain Template Matching
 
 - Parse logs into templates with the **Drain** algorithm.
 - Train on **two** baseline recordings (so dynamic fields become `<*>`).
 - Match check-run logs against baseline templates.
 - Unmatched lines → anomalies; re-mined to collapse recurring errors.
+- Reliable even for workloads that stayed **Ready** — catches silent failures.
 
-Reliable even for workloads that stayed **Ready** — catches silent failures.
+---
+layout: default
+---
 
+## Tests for Pod
+
+<div class="text-sm">
+
+| **ID** | **Title** | **Description** | **Datasource** |
+| --- | --- | --- | --- |
+| **TC-01** | Pod Stability | Detect if the container terminated unexpectedly during execution. | Probes |
+| **TC-02** | Pod Readiness | Identify if the container fails its healthiness probe during the test window. | Probes |
+| **TC-03** | Log Pattern Matching | Compare runtime logs to baseline and detect anomalies. | Logs |
+| **TC-04** | Resource Usage Patterns | Verify whether CPU or memory usage patterns match the baseline. | Metrics |
+
+</div>
+
+---
+layout: default
 ---
 
 ## Placeholder für LLM
@@ -333,3 +367,21 @@ TBI: Link to repo
 <small>[xkcd 1256 — Questions](https://xkcd.com/1256/) by Randall Munroe, licensed under [CC BY-NC 2.5](https://creativecommons.org/licenses/by-nc/2.5/)</small>
 
 <small>Slides built with [Slidev](https://sli.dev) and the [FHNW theme](https://github.com/peschmae/slidev-theme-fhnw).</small>
+
+---
+layout: default
+---
+
+## Backup: Observable Signals
+
+<div class="text-[12.5px] leading-tight">
+
+| Category | Signals |
+| --- | --- |
+| **Resource Metrics** | <ul><li>Collected per <strong>kubelet</strong>, ~15s resolution.</li><li><strong>DTW</strong> evaluated → good for shifted patterns, but needs interpretation.</li><li><strong>Statistical summaries</strong> chosen: mean, median, std-dev, variance on normalized data.</li><li>Metrics alone are <strong>not</strong> sufficient — used to spot outliers only.</li></ul> |
+| **Kubernetes Events** | <ul><li>Restarts, CrashLoopBackOff: only <strong>auxiliary</strong> context</li><li>Startup-, Liveness-, Readiness-Probes:<br/>Probes alone prove "running", not "correct". Works as <strong>hard failure gate</strong></li></ul> |
+| **Logs** | <ul><li>Container logs via kube-api</li><li>Analyzing with <strong>Drain</strong> algorithm</li></ul> |
+| **App Metrics** | <ul><li>Theoretically, most relevant</li><li>Endpoints are <strong>custom</strong></li></ul> |
+
+
+</div>
