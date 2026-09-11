@@ -143,27 +143,16 @@ Restrict the pod against the host is possible via security contexts (and mostly 
 -->
 
 ---
-layout: default
+layout: image-left
+image: /leankube-seccontext.png
+backgroundSize: contain
 ---
 
 ## Choosing the correct security context is hard ...
 
 ...even if you know the application well ...
 
-<img src="./leankube-seccontext.png" class="w-full h-full object-contain">
-
 Ref: https://learnkube.com/security-contexts 
-
----
-layout: two-cols
----
-
-## The problems
-
-- No **generic, automated** way to prove a workload still works under restrictive settings.
-- Every restriction is a gamble: it might break the app at runtime.
-
-> **Goal:** maximize security without breaking functionality — automatically.
 
  <!--
 `securityContext` are quite powerful
@@ -171,6 +160,26 @@ layout: two-cols
 - Conventional verification needs app-specific knowledge + integration tests.
 - However, when applied manually → error-prone and often skipped.
 -->
+
+---
+layout: default
+---
+
+## To boil it down...
+
+<div class="flex justify-center items-center h-[75%]">
+
+<img src="./boilitdown.svg" class="w-full h-full object-contain">
+
+</div>
+
+<!--
+- No **generic, automated** way to prove a workload still works under restrictive settings.
+- Every restriction is a gamble: it might break the app at runtime.
+
+> **Goal:** maximize security without breaking functionality — automatically.
+-->
+
 
 ---
 layout: image-right
@@ -191,40 +200,27 @@ Treat functional correctness as a **black box** and **orakle** about its correct
 --> (however...correct behaviour is assumed, not proved...)<br/>
 -->(well...was software correctness ever proved?)
 
----
-
-## What Comes Out
-
+<!--
+What you geht?
 A ready-to-apply, workload-agnostic recommendation:
 
 - `podSecurityContext` + container `securityContext`
 - Built only from restrictions that provably kept the app working
 - Enables **secure-by-default** deployments
+-->
+
 
 ---
+layout: default
+---
 
-## The Loop
+## The loop
 
-```mermaid{scale: 0.55}
-graph TB
-    A[Clone namespace] --> B[Record baseline twice]
-    B --> C[Apply one restriction]
-    subgraph loop
-    direction LR
-    C --> D[Compare signals to baseline]
-    D --> E{Functional?}
-    E -->|yes| F[Keep restriction]
-    E -->|no| G[Drop restriction]
-    F --> H[Next restriction]
-    end
-    G --> H
-    H --> C
-    F --> I[Synthesize recommended securityContext]
-```
+<div class="flex justify-center items-center h-[75%]">
 
-<!--
-as svg
--->
+<img src="./workflow.svg" class="w-full h-full object-contain">
+
+</div>
 ---
 
 ## Observable Signals
