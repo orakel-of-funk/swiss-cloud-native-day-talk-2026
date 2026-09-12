@@ -291,6 +291,8 @@ layout: default
 
 </div>
 
+TC-01…TC-03 failure ⇒ check fails. TC-04 alone never fails a check.
+
 ---
 layout: image-left
 image: /operatorarchitecture.svg
@@ -387,6 +389,5 @@ layout: default
 | **Kubernetes Events** | <ul><li>Restarts, CrashLoopBackOff: only <strong>auxiliary</strong> context</li><li>Startup-, Liveness-, Readiness-Probes:<br/>Probes alone prove "running", not "correct". Works as <strong>hard failure gate</strong></li></ul> |
 | **Logs** | <ul><li>Container logs via kube-api</li><li>Analyzing with <strong>Drain</strong> algorithm</li></ul> |
 | **App Metrics** | <ul><li>Theoretically, most relevant</li><li>Endpoints are <strong>custom</strong></li></ul> |
-
 
 </div>
