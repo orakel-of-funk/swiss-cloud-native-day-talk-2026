@@ -292,6 +292,20 @@ layout: default
 </div>
 
 ---
+layout: image-left
+image: /operatorarchitecture.svg
+backgroundSize: contain
+---
+
+## Operator Architecture
+
+- **Operator SDK** Kubernetes operator, two CRDs:
+  - `WorkloadHardeningCheck` — one workload
+  - `NamespaceHardeningCheck` — all workloads in a namespace
+- All runs execute in **cloned namespaces** (isolation preserved).
+- Status tracked via `StatusConditions`; logs/metrics in **ValKey** (1-day expiry).
+
+---
 layout: default
 ---
 
@@ -299,15 +313,6 @@ layout: default
 
 Lorem ipsum
 
----
-
-## Implementation: Operator Architecture
-
-- **Operator SDK** Kubernetes operator, two CRDs:
-  - `WorkloadHardeningCheck` — one workload
-  - `NamespaceHardeningCheck` — all workloads in a namespace
-- All runs execute in **cloned namespaces** (isolation preserved).
-- Status tracked via `StatusConditions`; logs/metrics in **ValKey** (1-day expiry).
 
 ---
 
