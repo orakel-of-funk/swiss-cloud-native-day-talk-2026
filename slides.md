@@ -427,6 +427,20 @@ For validation, the namespaces with the workload is cloned one more time and the
 layout: default
 ---
 
+## Can't we use LLM for that?
+
+- LLMs are not deterministic
+- Tests in early 2025 (GPT-4) showed a huge variance in results
+- Not enough data to train a model for a single application
+
+- Todays models are still not deterministic but they produce more reliable results
+- The concept itself can work with todays models
+- Adding an LLM based Oracle could be done
+
+---
+layout: default
+---
+
 ## Evaluation Workloads
 
 - **Real-world:** Prometheus, ArgoCD, MariaDB, Podtato-Head (official Helm charts).
