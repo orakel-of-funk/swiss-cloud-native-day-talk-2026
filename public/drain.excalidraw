@@ -1,7 +1,7 @@
 {
   "type": "excalidraw",
   "version": 2,
-  "source": "https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor",
+  "source": "https://excalidraw.com",
   "elements": [
     {
       "id": "B_scI6H4YZgj760zm6ElX",
@@ -12,7 +12,7 @@
       "height": 280.8949721953374,
       "angle": 0,
       "strokeColor": "#1e1e1e",
-      "backgroundColor": "#b2f2bb",
+      "backgroundColor": "transparent",
       "fillStyle": "hachure",
       "strokeWidth": 2,
       "strokeStyle": "solid",
@@ -25,8 +25,8 @@
         "type": 3
       },
       "seed": 298851262,
-      "version": 1199,
-      "versionNonce": 1059513187,
+      "version": 1200,
+      "versionNonce": 1351362443,
       "isDeleted": false,
       "boundElements": [
         {
@@ -34,9 +34,10 @@
           "type": "arrow"
         }
       ],
-      "updated": 1789163171496,
+      "updated": 1789633926920,
       "link": null,
-      "locked": false
+      "locked": false,
+      "created": null
     },
     {
       "id": "uJMvdH71NT3xsXznRqMqe",
@@ -73,7 +74,10 @@
       "containerId": null,
       "originalText": "time=2025-07-25T15:58:22.588Z level=INFO source=main.go:725 msg=\"Starting Prometheus Server\" mode=server version=\"(version=3.4.2, branch=HEAD, revision=b392caf256d7ed36980992496c8a6274e5557d36)\"",
       "autoResize": false,
-      "lineHeight": 1.35
+      "lineHeight": 1.35,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "8ZZ_uiG5cKfSf6eInL7a2",
@@ -110,7 +114,10 @@
       "containerId": null,
       "originalText": "time=2025-07-25T15:58:22.592Z level=INFO source=main.go:1266 msg=\"Starting TSDB ...\"",
       "autoResize": true,
-      "lineHeight": 1.35
+      "lineHeight": 1.35,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "x7LemazN0IzOdYtzZGuGm",
@@ -147,7 +154,10 @@
       "containerId": null,
       "originalText": "time=2025-07-25T15:58:22.817Z level=INFO source=head.go:862 msg=\"WAL replay completed\" component=tsdb checkpoint_replay_duration=42.820087ms wal_replay_duration=158.587917ms wbl_replay_duration=138ns chunk_snapshot_load_duration=0s mmap_chunk_replay_duration=4.466189ms total_replay_duration=205.908907ms",
       "autoResize": false,
-      "lineHeight": 1.35
+      "lineHeight": 1.35,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "F5RGJNGZe4-HAVcucvegx",
@@ -184,7 +194,10 @@
       "containerId": null,
       "originalText": "Baseline",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "oLhgpl0E6SWzpROI7lCzJ",
@@ -195,8 +208,8 @@
       "height": 299.5689977551627,
       "angle": 0,
       "strokeColor": "#1e1e1e",
-      "backgroundColor": "#a5d8ff",
-      "fillStyle": "hachure",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 1,
@@ -208,8 +221,8 @@
         "type": 3
       },
       "seed": 1086440034,
-      "version": 1855,
-      "versionNonce": 487389261,
+      "version": 1857,
+      "versionNonce": 861824293,
       "isDeleted": false,
       "boundElements": [
         {
@@ -217,9 +230,10 @@
           "type": "arrow"
         }
       ],
-      "updated": 1789163155250,
+      "updated": 1789633919864,
       "link": null,
-      "locked": false
+      "locked": false,
+      "created": null
     },
     {
       "id": "iRvKn8JlSmQvw9yYntawv",
@@ -256,7 +270,10 @@
       "containerId": null,
       "originalText": "Test",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "P77u2b_hF8at3tGXugztT",
@@ -293,7 +310,10 @@
       "containerId": null,
       "originalText": "time=2025-07-25T15:59:42.428Z level=INFO source=main.go:725 msg=\"Starting Prometheus Server\" mode=server version=\"(version=3.4.2, branch=HEAD, revision=b392caf256d7ed36980992496c8a6274e5557d36)\"",
       "autoResize": false,
-      "lineHeight": 1.35
+      "lineHeight": 1.35,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "St4GjCU-hP-6NdIZjKV4Q",
@@ -330,7 +350,10 @@
       "containerId": null,
       "originalText": "time=2025-07-25T15:59:42.432Z level=INFO source=main.go:1266 msg=\"Starting TSDB ...\"",
       "autoResize": false,
-      "lineHeight": 1.35
+      "lineHeight": 1.35,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "oT8FPYNx2qC-8iM3KVmiV",
@@ -372,7 +395,10 @@
       "containerId": null,
       "originalText": "time=2025-07-25T15:59:42.657Z level=INFO source=head.go:862 msg=\"WAL replay completed\" component=tsdb checkpoint_replay_duration=40.269496ms wal_replay_duration=164.763458ms wbl_replay_duration=131ns chunk_snapshot_load_duration=0s mmap_chunk_replay_duration=1.826402ms total_replay_duration=206.89316ms",
       "autoResize": false,
-      "lineHeight": 1.35
+      "lineHeight": 1.35,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "O8ULVW8zqdo84KRWhs1Vu",
@@ -383,7 +409,7 @@
       "height": 280.8949721953374,
       "angle": 0,
       "strokeColor": "#1e1e1e",
-      "backgroundColor": "#ffc9c9",
+      "backgroundColor": "transparent",
       "fillStyle": "hachure",
       "strokeWidth": 2,
       "strokeStyle": "solid",
@@ -396,8 +422,8 @@
         "type": 3
       },
       "seed": 1415466274,
-      "version": 1177,
-      "versionNonce": 1397329805,
+      "version": 1178,
+      "versionNonce": 1371864651,
       "isDeleted": false,
       "boundElements": [
         {
@@ -409,9 +435,10 @@
           "type": "arrow"
         }
       ],
-      "updated": 1789163173279,
+      "updated": 1789633921951,
       "link": null,
-      "locked": false
+      "locked": false,
+      "created": null
     },
     {
       "id": "K8dk0gVum1GVwxeUIyNaz",
@@ -448,7 +475,10 @@
       "containerId": null,
       "originalText": "<*> level=INFO source=main.go:725 msg=\"Starting Prometheus Server\" mode=server version=\"(version=3.4.2, branch=HEAD, revision=b392caf256d7ed36980992496c8a6274e5557d36)\"",
       "autoResize": false,
-      "lineHeight": 1.35
+      "lineHeight": 1.35,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "OvKXZ4be4RUWph6X47cjN",
@@ -485,7 +515,10 @@
       "containerId": null,
       "originalText": "<*> level=INFO source=main.go:1266 msg=\"Starting TSDB ...\"",
       "autoResize": true,
-      "lineHeight": 1.35
+      "lineHeight": 1.35,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "meP5x8vKNV78BeuczUwaD",
@@ -522,7 +555,10 @@
       "containerId": null,
       "originalText": "<*> level=INFO source=head.go:862 msg=\"WAL replay completed\" component=tsdb <*> <*> <*> chunk_snapshot_load_duration=0s <*> <*>",
       "autoResize": false,
-      "lineHeight": 1.35
+      "lineHeight": 1.35,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "EwNu-6TGUoKSWaUOk_wQz",
@@ -559,7 +595,10 @@
       "containerId": null,
       "originalText": "Drain Template",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "created": null,
+      "labelPosition": null,
+      "baseFontSize": null
     },
     {
       "id": "PPUNJgILSMUzlQdYTnqWu",
@@ -606,18 +645,25 @@
       ],
       "lastCommittedPoint": null,
       "startBinding": {
+        "mode": "orbit",
         "elementId": "B_scI6H4YZgj760zm6ElX",
-        "focus": 0.6372993760590882,
-        "gap": 4.899126133092977
+        "fixedPoint": [
+          0,
+          0.5001
+        ]
       },
       "endBinding": {
+        "mode": "orbit",
         "elementId": "O8ULVW8zqdo84KRWhs1Vu",
-        "focus": -0.788654188147744,
-        "gap": 15.070079851994024
+        "fixedPoint": [
+          0.10567290592612825,
+          0.10567290592612819
+        ]
       },
       "startArrowhead": null,
       "endArrowhead": "arrow",
-      "elbowed": false
+      "elbowed": false,
+      "created": null
     },
     {
       "id": "WBZoThsB8W_nSO8yQ9AK1",
@@ -664,25 +710,33 @@
       ],
       "lastCommittedPoint": null,
       "startBinding": {
+        "mode": "inside",
         "elementId": "oLhgpl0E6SWzpROI7lCzJ",
-        "focus": -0.748474821368851,
-        "gap": 4.296145546009882
+        "fixedPoint": [
+          0.8716214129812093,
+          0.9856589113753316
+        ]
       },
       "endBinding": {
+        "mode": "orbit",
         "elementId": "O8ULVW8zqdo84KRWhs1Vu",
-        "focus": 0.517581459747865,
-        "gap": 2.399758761930457
+        "fixedPoint": [
+          1,
+          0.5001
+        ]
       },
       "startArrowhead": null,
       "endArrowhead": "arrow",
-      "elbowed": false
+      "elbowed": false,
+      "created": null
     }
   ],
   "appState": {
     "gridSize": 20,
     "gridStep": 5,
     "gridModeEnabled": false,
-    "viewBackgroundColor": "#ffffff"
+    "viewBackgroundColor": "#ffffff",
+    "lockedMultiSelections": {}
   },
   "files": {}
 }

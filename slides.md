@@ -281,14 +281,6 @@ backgroundSize: contain
 - Reliable even for workloads that stayed **Ready** — catches silent failures.
 
 ---
-layout: default
----
-
-## Placeholder für LLM
-
-Lorem ipsum
-
----
 layout: image-left
 image: /operatorarchitecture.svg
 backgroundSize: contain
@@ -428,14 +420,17 @@ layout: default
 ---
 
 ## Can't we use LLM for that?
-
 - LLMs are not deterministic
 - Tests in early 2025 (GPT-4) showed a huge variance in results
 - Not enough data to train a model for a single application
 
-- Todays models are still not deterministic but they produce more reliable results
+<v-click>
+
+- Recent models are still not deterministic but produce more reliable results
 - The concept itself can work with todays models
 - Adding an LLM based Oracle could be done
+
+</v-click>
 
 ---
 layout: default
