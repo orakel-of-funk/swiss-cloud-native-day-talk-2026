@@ -9,7 +9,7 @@ author: Mathias Petermann, Sebastian Graf
 
 > "We just want to deploy securely — but end up fixing someone else's YAML"
 
-Mathias Petermann &nbsp; <small>&lt;mathias.petermann@gmail.com&gt;</small>
+Mathias Petermann &nbsp; <small>&lt;mathias.petermann@fhnw.ch&gt;</small>
 
 Sebastian Graf &nbsp; <small>&lt;sebastian.graf@fhnw.ch&gt;</small>
 
