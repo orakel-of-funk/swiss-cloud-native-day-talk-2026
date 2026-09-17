@@ -487,7 +487,7 @@ layout: default
 ## Takeaways
 
 - Functionality-based hardening is **feasible** with minimal assumptions.
-- Logs + probes + metrics together form a robust oracle.
+- Logs + probes + application metrics together form a robust oracle.
 - Operator integrates natively, gives actionable workload-agnostic recommendations.
 
 <div class="mt-8 flex flex-col items-center" style="height: calc(100% - 180px);">
