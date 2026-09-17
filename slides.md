@@ -458,6 +458,75 @@ layout: default
 - **Purpose-built:** chown, privilege escalation, filesystem writes, port binding.
 
 ---
+layout: two-cols-header
+---
+
+## MariaDB
+
+::right::
+
+<div style="width: 80%;">
+
+<v-click>
+
+```yaml
+apiVersion: orakel.ofunk.org/v1alpha1
+kind: WorkloadHardeningCheck
+metadata:
+  name: mariadb
+status:
+  recommendation:
+    containerSecurityContexts:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: false
+      runAsGroup: 999
+      runAsNonRoot: true
+      runAsUser: 999
+    podSecurityContext:
+      fsGroup: 999
+      runAsGroup: 999
+      runAsNonRoot: true
+      runAsUser: 999
+```
+
+</v-click>
+
+</div>
+
+::left::
+
+<div style="width: 80%;">
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: oof-mariadb
+spec:
+  ....
+  template:
+    spec:
+      containers:
+      - image: docker.io/mariadb:12.3.2
+        imagePullPolicy: Always
+        name: mariadb
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 999
+      ....
+      securityContext:
+        fsGroup: 999
+
+```
+
+</div>
+
+---
 layout: two-cols
 ---
 
