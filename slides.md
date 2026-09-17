@@ -198,12 +198,17 @@ Treat functional correctness as a **black box** and **orakle** about its correct
 3. **Compare** observed behavior against the baseline.
 4. Aggregate successful restrictions → recommended `securityContext`.
 
---> No internal knowledge of the app required..<br/>
---> (however...correct behaviour is assumed, not proved...)<br/>
--->(well...was software correctness ever proved?)
+
+<v-click>
+
+-- No internal knowledge of the app required.<br/>
+-- however...correct behaviour is assumed, not proved...<br/>
+-- well...was software correctness ever proved?
+
+</v-click>
 
 <!--
-What you geht?
+What you get?
 A ready-to-apply, workload-agnostic recommendation:
 
 - `podSecurityContext` + container `securityContext`
@@ -221,12 +226,18 @@ layout: default
 
 | Category | Signals |
 | --- | --- |
-| **Resource Metrics** | <ul><li>Collected per <strong>kubelet</strong>, ~15s resolution.</li><li><strong>DTW</strong> evaluated → good for shifted patterns, but needs interpretation.</li><li><strong>Statistical summaries</strong> chosen: mean, median, std-dev, variance on normalized data.</li><li>Metrics alone are <strong>not</strong> sufficient — used to spot outliers only.</li></ul> |
-| **Kubernetes Events** | <ul><li>Restarts, CrashLoopBackOff: only <strong>auxiliary</strong> context</li><li>Startup-, Liveness-, Readiness-Probes:<br/>Probes alone prove "running", not "correct". Works as <strong>hard failure gate</strong></li></ul> |
+| **Resource Metrics** | <ul><li>Collected per <strong>kubelet</strong>, 15s resolution.</li><li><strong>DTW</strong> evaluated → good for shifted patterns, but needs interpretation.</li><li><strong>Statistical summaries</strong> chosen: mean, median, std-dev, variance on normalized data.</li><li>Metrics alone are <strong>not</strong> sufficient — used to spot outliers only.</li></ul> |
+| **Kubernetes Events** | <ul><li>Restarts, CrashLoopBackOff: only <strong>auxiliary</strong> context</li><li>Probes alone prove "running", not "correct". Works as <strong>hard failure gate</strong></li></ul> |
 | **Logs** | <ul><li>Container logs via kube-api</li><li>Analyzing with <strong>Drain</strong> algorithm</li></ul> |
 | **App Metrics** | <ul><li>Theoretically, most relevant</li><li>Endpoints are <strong>custom</strong></li></ul> |
 
 </div>
+
+<!--
+The 15s limit is a hard limit, restricting the resolution
+DTW = dynamic time warping
+Probes are nice, but reliability varies greatly
+-->
 
 ---
 layout: two-cols
@@ -237,16 +248,16 @@ layout: two-cols
 ### Signal Resource Metrics - DTW
 
 - Dynamic Time Wrapping (DTW) computes distance between points
-- Even it acts as indicator, only specific workloads would generate artifacts when failing
+- 15s resolution limits the reliability
 
-<img src="./dtw-cpu-norm.png" class="h-60 mx-auto mr-4">
+<img src="./dtw-cpu-norm.png" class="h-60 mx-auto">
 
 
 ::right::
 
 ### Signal Resource Metrics - Statistics
 
-<div class="text-1xl italic ml-12">
+<div class="text-1xl">
 
 - Statistic analysis over measured metrics
 - Easier to compute / maintain than DTW
@@ -277,7 +288,7 @@ backgroundSize: contain
 - Parse logs into templates with the **Drain** algorithm.
 - Train on **two** baseline recordings (so dynamic fields become `<*>`).
 - Match check-run logs against baseline templates.
-- Unmatched lines → anomalies; re-mined to collapse recurring errors.
+- Unmatched lines → anomalies; collapse recurring errors.
 - Reliable even for workloads that stayed **Ready** — catches silent failures.
 
 ---
@@ -292,7 +303,8 @@ backgroundSize: contain
   - `WorkloadHardeningCheck` — one workload
   - `NamespaceHardeningCheck` — all workloads in a namespace
 - All runs execute in **cloned namespaces** (isolation preserved).
-- Status tracked via `StatusConditions`; logs/metrics in **ValKey** (1-day expiry).
+- Status tracked via `StatusConditions`
+- Signals stored in **ValKey**
 
 ---
 layout: default
@@ -319,12 +331,11 @@ layout: default
 | **TC-01** | Pod Stability | Detect if the container terminated unexpectedly during execution. | Probes |
 | **TC-02** | Pod Readiness | Identify if the container fails its healthiness probe during the test window. | Probes |
 | **TC-03** | Log Pattern Matching | Compare runtime logs to baseline and detect anomalies. | Logs |
-| **TC-04** | Resource Usage Patterns | Verify whether CPU or memory usage patterns match the baseline. | Metrics |
 
 </div>
+<br/>
 
-- TC-01…TC-03 failure ⇒ check fails
-- TC-04 alone never fails a check.
+- If any test-case fails ⇒ current configuration is too restrictive
 
 ---
 layout: two-cols
@@ -392,6 +403,8 @@ For validation, the namespaces with the workload is cloned one more time and the
 
 ::left::
 
+<div style="width: 90%">
+
 ```yaml
   conditions:
   - lastTransitionTime: "2025-08-13T16:51:36Z"
@@ -414,6 +427,8 @@ For validation, the namespaces with the workload is cloned one more time and the
       runAsNonRoot: true
       runAsUser: 1000
 ```
+
+</div>
 
 ---
 layout: default
