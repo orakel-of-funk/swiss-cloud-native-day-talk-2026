@@ -5,7 +5,6 @@ node_modules/
 # Slidev generated files
 dist/
 .remote/
-*.pdf
 /*.png
 
 # Editor and OS files
